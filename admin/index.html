@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>꿈글 작가 홈페이지 · 운영자</title>
+<style>
+:root{--paper:#faf6ee;--card:#fffdf8;--ink:#2b2622;--sub:#6e655c;--line:#e6dccb;--accent:#7a3b3b;--accent-soft:#f1e3dd;--btn:#4a3f3a;--btn-ink:#fffdf8;--ok:#2f6b3f;--bad:#a33}
+@media (prefers-color-scheme:dark){:root{--paper:#1d1a17;--card:#262220;--ink:#efe8dc;--sub:#a99f92;--line:#3a342f;--accent:#d9a3a0;--accent-soft:#3a2b2a;--btn:#e9dfcf;--btn-ink:#1d1a17;--ok:#8fd09f;--bad:#f09a9a}}
+*{box-sizing:border-box}
+html{overflow-y:scroll}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.6 -apple-system,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;word-break:keep-all}
+.wrap{max-width:860px;margin:0 auto;padding:0 20px}
+header{border-bottom:1px solid var(--line);background:var(--card);position:sticky;top:0;z-index:5}
+header .wrap{display:flex;align-items:center;gap:12px;padding-top:12px;padding-bottom:12px;flex-wrap:wrap}
+.logo{background:var(--btn);color:var(--btn-ink);padding:5px 12px;border-radius:4px;font-weight:700;font-size:14px}
+.sp{flex:1}
+button,.btn{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:6px;padding:7px 14px}
+button.pri{background:var(--btn);color:var(--btn-ink);border-color:var(--btn)}
+button.pri:disabled{opacity:.5;cursor:default}
+button.sm{padding:3px 10px;font-size:13px}
+button.del{color:var(--bad)}
+input,textarea,select{font:inherit;width:100%;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:8px 10px}
+textarea{resize:vertical;min-height:72px}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--accent-soft);border-color:var(--accent)}
+label{display:block;font-size:13px;color:var(--sub);margin:14px 0 4px}
+h2{font-size:18px;margin:26px 0 4px}
+.hint{color:var(--sub);font-size:13px;margin:2px 0 8px}
+main{padding:24px 0 100px}
+.login{text-align:center;padding:90px 0}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;margin:18px 0 6px}
+.tabs button{border-radius:20px;padding:5px 14px;font-size:14px}
+.tabs button.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:700}
+.item{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 16px 16px;margin:12px 0;position:relative}
+.item .head{display:flex;align-items:center;justify-content:space-between;margin-top:10px;font-size:13px;color:var(--sub)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+.grid3{display:grid;grid-template-columns:80px 1fr;gap:0 14px}
+@media(max-width:600px){.grid2{grid-template-columns:1fr}}
+.row2{display:flex;gap:8px}
+.preview{margin-top:8px;max-width:140px;aspect-ratio:3/4;background:var(--line);border-radius:4px;overflow:hidden}
+.preview.wide{max-width:260px;aspect-ratio:16/9}
+.preview img{width:100%;height:100%;object-fit:cover;display:block}
+.bar{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);z-index:6}
+.bar .wrap{display:flex;align-items:center;gap:12px;padding-top:10px;padding-bottom:10px}
+.msg{font-size:14px}.msg.ok{color:var(--ok)}.msg.bad{color:var(--bad)}
+.tagcount{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.pill{border:1px solid var(--line);border-radius:20px;padding:2px 12px;font-size:13px;background:var(--card)}
+.pill.warn{border-color:var(--bad);color:var(--bad)}
+.who{font-size:13px;color:var(--sub)}
+.box{background:var(--accent-soft);border-radius:8px;padding:12px 16px;margin:12px 0}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <span class="logo">꿈글 운영자</span>
+  <span id="who" class="who"></span>
+  <span class="sp"></span>
+  <span id="authorBox" hidden>
+    <select id="authorSel" style="width:auto"></select>
+    <button id="newAuthorBtn" class="sm">+ 작가 추가</button>
+  </span>
+  <a id="viewSite" class="btn sm" target="_blank" rel="noopener" hidden>사이트 보기 ↗</a>
+  <button id="outBtn" class="sm" hidden>로그아웃</button>
+</div></header>
+
+<main class="wrap" id="app"><p>불러오는 중…</p></main>
+
+<div class="bar" id="bar" hidden><div class="wrap">
+  <button class="pri" id="saveBtn">저장하기</button>
+  <span class="msg" id="msg"></span>
+</div></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, getDocs, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey: "AIzaSyDQO4-1P_3_xjsGZm3sQS2cxsSAq9-hhRQ",
+  authDomain: "kkumgeul-authors.firebaseapp.com",
+  projectId: "kkumgeul-authors",
+  storageBucket: "kkumgeul-authors.firebasestorage.app",
+  messagingSenderId: "268896652822",
+  appId: "1:268896652822:web:589fb5a347aa12aeb2ef37"
+});
+const auth = getAuth(app), db = getFirestore(app);
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+const EMOTIONS = ["불안","그리움","설렘","위로","기쁨","슬픔","용기","사랑"];
+const TABS = [["basic","기본 정보"],["sent","오늘의 문장"],["prof","프로필"],["books","도서"],["social","소셜 채널"],["arch","아카이브·공지"],["contact","문의·하단"]];
+
+let slug = "mir", D = null, tab = "basic", dirty = false, user = null, exists = false;
+
+/* ---------- 데이터 도우미 ---------- */
+function blank(){
+  return {name:"",nameEn:"",quote:"",hero:{image:"",credit:""},sentences:[],
+    profile:{lead:"",about:[],history:[],activities:[]},books:[],social:[],archive:[],notices:[],
+    contact:{lead:"",email:"",note:""},footNote:"이 페이지는 꿈글출판사와 계약한 작가를 위해 꿈글이 제작하고 운영합니다.",footLinks:[{label:"꿈글출판사 홈페이지",href:""}]};
+}
+function normalize(x){
+  const b = blank();
+  const o = Object.assign(b, x||{});
+  o.hero = Object.assign(b.hero, o.hero||{});
+  o.profile = Object.assign(blank().profile, o.profile||{});
+  o.contact = Object.assign(blank().contact, o.contact||{});
+  ["sentences","books","social","archive","notices","footLinks"].forEach(k=>{ if(!Array.isArray(o[k])) o[k]=[]; });
+  o.books.forEach(bk=>{ bk.buy = Object.assign({store:"교보문고",type:"종이책",href:""}, bk.buy||{}); if(!Array.isArray(bk.formats)) bk.formats=[]; });
+  return o;
+}
+const get = p => p.split(".").reduce((o,k)=>o==null?o:o[k], D);
+function set(p,v){ const ks=p.split("."); const last=ks.pop(); const o=ks.reduce((a,k)=>a[k],D); o[last]=v; markDirty(); }
+function markDirty(){ dirty=true; $("msg").textContent="저장하지 않은 변경이 있어요"; $("msg").className="msg"; }
+
+/* ---------- 화면 조각 ---------- */
+function fld(label, p, o={}){
+  const v = get(p) ?? "";
+  const ph = o.ph ? ` placeholder="${esc(o.ph)}"` : "";
+  let inp;
+  if(o.type==="area") inp = `<textarea data-p="${p}"${ph}>${esc(v)}</textarea>`;
+  else if(o.type==="csv") inp = `<input data-p="${p}" data-t="csv" value="${esc((v||[]).join(", "))}"${ph}>`;
+  else if(o.type==="sel") inp = `<select data-p="${p}">${o.opts.map(x=>`<option${x===v?" selected":""}>${esc(x)}</option>`).join("")}</select>`;
+  else inp = `<input data-p="${p}" value="${esc(v)}"${ph}>`;
+  let extra = "";
+  if(o.img) extra = `<div class="preview ${o.wide?"wide":""}" data-prev="${p}">${imgTag(v)}</div>`;
+  return `<label>${label}</label>${inp}${o.hint?`<div class="hint">${o.hint}</div>`:""}${extra}`;
+}
+const imgTag = v => v ? `<img src="${esc(v)}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{textContent:'이미지를 불러오지 못했어요',style:'padding:8px;font-size:12px'}))">` : "";
+function item(listPath, i, inner, title){
+  return `<div class="item"><div class="head"><b>${esc(title)}</b><button class="sm del" data-act="del" data-p="${listPath}" data-i="${i}">삭제</button></div>${inner}</div>`;
+}
+const addBtn = (p, label) => `<button data-act="add" data-p="${p}">+ ${label}</button>`;
+
+/* ---------- 탭 ---------- */
+const VIEWS = {
+  basic(){ return `
+    <h2>기본 정보</h2>
+    ${fld("작가 이름","name",{ph:"예: 미르"})}
+    ${fld("영문 이름 (선택)","nameEn",{ph:"예: Mir"})}
+    ${fld("대표 한 줄","quote",{hint:"첫 화면에 크게 나오는 문장이에요."})}
+    <h2>첫 화면 사진 (선택)</h2>
+    <div class="hint">사진이 없으면 글자만 있는 첫 화면이 나와요. 사진 주소(아임웹 이미지 주소 등)를 붙여넣으세요.</div>
+    ${fld("사진 주소","hero.image",{img:1,wide:1})}
+    ${fld("사진 출처 (선택)","hero.credit",{ph:"© 사진가 이름"})}`; },
+
+  sent(){
+    const tags = {}; D.sentences.forEach(s=>{ const t=s.tag||"미분류"; tags[t]=(tags[t]||0)+1; });
+    const pills = Object.keys(tags).map(t=>`<span class="pill ${tags[t]<3?"warn":""}">${esc(t)} ${tags[t]}${tags[t]<3?" · 3개 이상 권장":""}</span>`).join("");
+    return `
+    <h2>오늘의 문장</h2>
+    <div class="hint">작가가 책에서 뽑아 준 문장(10개 정도)을 입력하세요. 방문자가 ‘지금 마음은?’에서 감정을 고르면 그 감정의 문장이 나와요.</div>
+    <div class="box">
+      <b>여러 문장 한 번에 붙여넣기</b>
+      <div class="hint">한 줄에 한 문장씩. 태그와 출처를 함께 쓰려면 <code>문장 | 태그 | 출처</code> 형식으로 적어 주세요.</div>
+      <textarea id="bulk" style="min-height:130px" placeholder="이름을 붙여 주면, 마음은 조금 덜 낯설어진다. | 불안 | 하얀방&#10;설렘은 아직 오지 않은 날의 첫 문장이다. | 설렘"></textarea>
+      <div class="row2" style="margin-top:8px"><input id="bulkTag" list="tagList" placeholder="기본 태그 (줄에 태그가 없을 때 사용)" style="max-width:240px"><input id="bulkSrc" placeholder="기본 출처 (예: 책 제목)" style="max-width:240px"><button data-act="bulk">아래 목록에 추가</button></div>
+    </div>
+    <div class="tagcount">${pills||'<span class="hint">아직 문장이 없어요.</span>'}</div>
+    <datalist id="tagList">${EMOTIONS.map(e=>`<option value="${e}">`).join("")}</datalist>
+    ${D.sentences.map((s,i)=>item("sentences",i,`
+      ${fld("문장",`sentences.${i}.text`,{type:"area"})}
+      <div class="grid2">
+        <div><label>마음 태그</label><input list="tagList" data-p="sentences.${i}.tag" value="${esc(s.tag||"")}"></div>
+        <div><label>출처 (책 제목)</label><input data-p="sentences.${i}.src" value="${esc(s.src||"")}"></div>
+      </div>`,`문장 ${i+1}`)).join("")}
+    ${addBtn("sentences","문장 하나 추가")}`; },
+
+  prof(){ return `
+    <h2>프로필</h2>
+    ${fld("한 줄 소개","profile.lead",{type:"area"})}
+    <h2>소개 글</h2><div class="hint">문단별로 나누어 적어요.</div>
+    ${D.profile.about.map((_,i)=>item("profile.about",i,fld("문단",`profile.about.${i}`,{type:"area"}),`문단 ${i+1}`)).join("")}
+    ${addBtn("profile.about","문단 추가")}
+    <h2>이력 · 수상</h2><div class="hint">등단, 수상, 소속 등. 아이콘은 이모지 하나(🖋️ 🏆 등)를 넣어요.</div>
+    ${D.profile.history.map((_,i)=>item("profile.history",i,`<div class="grid3"><div>${fld("아이콘",`profile.history.${i}.icon`)}</div><div>${fld("제목",`profile.history.${i}.title`)}</div></div>${fld("설명·연도",`profile.history.${i}.desc`)}`,`이력 ${i+1}`)).join("")}
+    ${addBtn("profile.history","이력 추가")}
+    <h2>활동</h2>
+    ${D.profile.activities.map((_,i)=>item("profile.activities",i,`<div class="grid3"><div>${fld("아이콘",`profile.activities.${i}.icon`)}</div><div>${fld("제목",`profile.activities.${i}.title`)}</div></div>${fld("설명",`profile.activities.${i}.desc`)}`,`활동 ${i+1}`)).join("")}
+    ${addBtn("profile.activities","활동 추가")}`; },
+
+  books(){ return `
+    <h2>도서</h2><div class="hint">꿈글출판사에서 낸 책을 등록해요. 구입처는 교보문고 주소 1개만 넣어요.</div>
+    ${D.books.map((b,i)=>item("books",i,`
+      <div class="grid2">
+        <div>${fld("제목",`books.${i}.title`)}</div>
+        <div>${fld("주소용 영문 이름",`books.${i}.id`,{ph:"예: white-room",hint:"영문 소문자와 -만 사용"})}</div>
+        <div>${fld("분류",`books.${i}.genre`,{ph:"예: 단편소설집"})}</div>
+        <div>${fld("출간 연도",`books.${i}.year`,{ph:"예: 2026"})}</div>
+        <div>${fld("출판사",`books.${i}.publisher`)}</div>
+        <div>${fld("형태 (쉼표로 구분)",`books.${i}.formats`,{type:"csv",ph:"종이책, 전자책"})}</div>
+      </div>
+      ${fld("책 소개",`books.${i}.desc`,{type:"area"})}
+      ${fld("표지 이미지 주소",`books.${i}.cover`,{img:1,hint:"세로형(3:4) 이미지가 가장 잘 맞아요."})}
+      <div class="grid2">
+        <div>${fld("구입처 이름",`books.${i}.buy.store`)}</div>
+        <div>${fld("구입 형태",`books.${i}.buy.type`,{type:"sel",opts:["종이책","전자책"]})}</div>
+      </div>
+      ${fld("구입 주소 (교보문고 상세 페이지)",`books.${i}.buy.href`,{ph:"https://product.kyobobook.co.kr/..."})}`,b.title||`책 ${i+1}`)).join("")}
+    ${addBtn("books","책 추가")}`; },
+
+  social(){ return `
+    <h2>소셜 채널</h2><div class="hint">프로필 화면에 모아서 보여 줘요. 주소를 비워 두면 숨겨져요(출시 후).</div>
+    ${D.social.map((_,i)=>item("social",i,`<div class="grid3"><div>${fld("아이콘",`social.${i}.icon`)}</div><div>${fld("채널 이름",`social.${i}.label`)}</div></div>
+      <div class="grid2"><div>${fld("표시 이름",`social.${i}.handle`,{ph:"@아이디"})}</div><div>${fld("주소",`social.${i}.href`,{ph:"https://..."})}</div></div>`,D.social[i].label||`채널 ${i+1}`)).join("")}
+    ${addBtn("social","채널 추가")}`; },
+
+  arch(){ return `
+    <h2>아카이브</h2><div class="hint">글, 인터뷰, 기사, 영상 등 작가의 활동 기록이에요.</div>
+    ${D.archive.map((_,i)=>item("archive",i,`<div class="grid3"><div>${fld("아이콘",`archive.${i}.icon`)}</div><div>${fld("제목",`archive.${i}.title`)}</div></div>
+      ${fld("설명",`archive.${i}.desc`)}<div class="grid2"><div>${fld("날짜",`archive.${i}.date`,{ph:"2026.10"})}</div><div>${fld("연결 주소 (선택)",`archive.${i}.href`)}</div></div>`,D.archive[i].title||`기록 ${i+1}`)).join("")}
+    ${addBtn("archive","기록 추가")}
+    <h2>공지사항</h2>
+    ${D.notices.map((_,i)=>item("notices",i,`${fld("제목",`notices.${i}.title`)}${fld("내용",`notices.${i}.desc`,{type:"area"})}${fld("날짜",`notices.${i}.date`,{ph:"2026.10.12"})}`,D.notices[i].title||`공지 ${i+1}`)).join("")}
+    ${addBtn("notices","공지 추가")}`; },
+
+  contact(){ return `
+    <h2>문의</h2>
+    ${fld("안내 문구","contact.lead",{type:"area"})}
+    ${fld("이메일","contact.email")}
+    ${fld("덧붙임 문구","contact.note")}
+    <h2>하단 문구</h2>
+    ${fld("하단 안내","footNote",{type:"area"})}
+    ${D.footLinks.map((_,i)=>item("footLinks",i,`<div class="grid2"><div>${fld("이름",`footLinks.${i}.label`)}</div><div>${fld("주소",`footLinks.${i}.href`,{ph:"https://..."})}</div></div>`,`링크 ${i+1}`)).join("")}
+    ${addBtn("footLinks","링크 추가")}`; }
+};
+
+const NEW = {
+  sentences:()=>({text:"",tag:"",src:""}),
+  "profile.about":()=>"",
+  "profile.history":()=>({icon:"🏆",title:"",desc:""}),
+  "profile.activities":()=>({icon:"🌱",title:"",desc:""}),
+  books:()=>({id:"book-"+(D.books.length+1),title:"",genre:"",year:"",publisher:"꿈글출판사",desc:"",formats:["종이책"],cover:"",buy:{store:"교보문고",type:"종이책",href:""}}),
+  social:()=>({icon:"🔗",label:"",handle:"",href:""}),
+  archive:()=>({icon:"✍️",title:"",desc:"",date:"",href:""}),
+  notices:()=>({title:"",desc:"",date:""}),
+  footLinks:()=>({label:"",href:""})
+};
+
+/* ---------- 그리기 ---------- */
+function render(){
+  const y = window.scrollY;
+  $("app").innerHTML = `<div class="tabs">${TABS.map(([k,n])=>`<button class="${k===tab?"on":""}" data-tab="${k}">${n}</button>`).join("")}</div>${VIEWS[tab]()}`;
+  window.scrollTo(0,y);
+}
+
+/* ---------- 이벤트 ---------- */
+document.addEventListener("input", e=>{
+  const el = e.target; const p = el.dataset && el.dataset.p; if(!p) return;
+  let v = el.value;
+  if(el.dataset.t==="csv") v = v.split(",").map(s=>s.trim()).filter(Boolean);
+  set(p, v);
+  const pv = document.querySelector(`[data-prev="${CSS.escape(p)}"]`);
+  if(pv) pv.innerHTML = imgTag(v);
+});
+document.addEventListener("click", e=>{
+  const b = e.target.closest("button"); if(!b) return;
+  if(b.dataset.tab){ tab=b.dataset.tab; render(); return; }
+  if(b.dataset.act==="add"){
+    const p=b.dataset.p; const arr=get(p); arr.push(NEW[p]()); markDirty(); render();
+    setTimeout(()=>window.scrollTo(0,document.body.scrollHeight),0); return;
+  }
+  if(b.dataset.act==="del"){
+    if(!confirm("이 항목을 삭제할까요?")) return;
+    get(b.dataset.p).splice(+b.dataset.i,1); markDirty(); render(); return;
+  }
+  if(b.dataset.act==="bulk"){
+    const lines = $("bulk").value.split("\n").map(s=>s.trim()).filter(Boolean);
+    if(!lines.length) return;
+    const dt = $("bulkTag").value.trim(), ds = $("bulkSrc").value.trim();
+    lines.forEach(l=>{ const [t,tag,src] = l.split("|").map(s=>s.trim()); D.sentences.push({text:t,tag:tag||dt,src:src||ds}); });
+    markDirty(); render(); return;
+  }
+});
+$("authorSel").onchange = async e => { if(await confirmLeave()) loadAuthor(e.target.value); else e.target.value = slug; };
+$("newAuthorBtn").onclick = async () => {
+  const s = (window.prompt("새 작가의 주소용 영문 이름을 입력하세요 (영문 소문자·숫자·-)\n예: hong") || "").trim().toLowerCase();
+  if(!s) return;
+  if(!/^[a-z0-9-]{2,30}$/.test(s)){ alert("영문 소문자, 숫자, - 만 사용할 수 있어요."); return; }
+  if(!(await confirmLeave())) return;
+  loadAuthor(s, true);
+};
+async function confirmLeave(){ return !dirty || window.confirm("저장하지 않은 변경이 있어요. 그래도 이동할까요?"); }
+window.addEventListener("beforeunload", e=>{ if(dirty){ e.preventDefault(); e.returnValue=""; } });
+
+$("saveBtn").onclick = async () => {
+  const btn = $("saveBtn"); btn.disabled = true; $("msg").textContent = "저장하는 중…"; $("msg").className="msg";
+  try{
+    await setDoc(doc(db,"authors",slug), {data: JSON.stringify(D), updatedAt: serverTimestamp(), updatedBy: user.email});
+    dirty=false; exists=true; $("msg").textContent="저장했어요. 사이트에는 잠시 후 반영돼요."; $("msg").className="msg ok";
+    refreshAuthors();
+  }catch(err){
+    $("msg").textContent = err.code==="permission-denied" ? "저장 권한이 없는 계정이에요. 운영자 계정으로 로그인했는지 확인하세요." : "저장하지 못했어요: "+err.message;
+    $("msg").className="msg bad";
+  }
+  btn.disabled=false;
+};
+$("outBtn").onclick = () => signOut(auth);
+
+/* ---------- 불러오기 ---------- */
+async function refreshAuthors(){
+  let slugs = [];
+  try{ slugs = (await getDocs(collection(db,"authors"))).docs.map(d=>d.id); }catch(e){}
+  if(!slugs.includes(slug)) slugs.push(slug);
+  slugs.sort();
+  $("authorSel").innerHTML = slugs.map(s=>`<option${s===slug?" selected":""}>${s}</option>`).join("");
+}
+async function loadAuthor(s, isNew){
+  slug = s; dirty=false; $("msg").textContent="";
+  $("viewSite").href = `https://${slug}.kkumgeul.co.kr/`;
+  let snap = null;
+  try{ snap = await getDoc(doc(db,"authors",slug)); }catch(e){}
+  exists = !!(snap && snap.exists());
+  if(exists){ try{ D = normalize(JSON.parse(snap.data().data)); }catch(e){ D = blank(); } }
+  else { D = blank(); }
+  if(!exists && !isNew && slug==="mir") await importCurrentSite();
+  D = normalize(D);
+  await refreshAuthors();
+  tab="basic"; render();
+  if(!exists){ $("msg").textContent = isNew ? "새 작가입니다. 내용을 입력하고 저장하세요." : "아직 저장된 내용이 없어서 현재 사이트의 내용을 불러왔어요. 저장하면 이 내용이 기준이 됩니다."; $("msg").className="msg"; }
+}
+/* 처음 한 번: 지금 공개된 사이트의 기본 내용을 가져와 시작점으로 사용 */
+async function importCurrentSite(){
+  try{
+    const t = await (await fetch("../index.html",{cache:"no-store"})).text();
+    const a = t.indexOf("const AUTHOR = "), z = t.indexOf("\n};", a);
+    if(a<0||z<0) return;
+    D = new Function("return " + t.slice(a+"const AUTHOR = ".length, z+2))();
+  }catch(e){}
+}
+
+/* ---------- 로그인 ---------- */
+onAuthStateChanged(auth, async u => {
+  user = u;
+  if(!u){
+    $("who").textContent=""; $("outBtn").hidden=true; $("authorBox").hidden=true; $("viewSite").hidden=true; $("bar").hidden=true;
+    $("app").innerHTML = `<div class="login"><h2 style="margin-top:0">작가 홈페이지 운영자</h2><p class="hint">운영자 구글 계정으로 로그인하세요.</p><button class="pri" id="inBtn">Google로 로그인</button><p class="msg bad" id="lerr"></p></div>`;
+    $("inBtn").onclick = async () => { try{ await signInWithPopup(auth,new GoogleAuthProvider()); }catch(e){ $("lerr").textContent = e.code==="auth/unauthorized-domain" ? "이 주소가 Firebase 승인 도메인에 등록되어 있지 않아요." : "로그인하지 못했어요: "+e.code; } };
+    return;
+  }
+  $("who").textContent = u.email; $("outBtn").hidden=false; $("authorBox").hidden=false; $("viewSite").hidden=false; $("bar").hidden=false;
+  await loadAuthor(slug);
+});
+</script>
+</body>
+</html>

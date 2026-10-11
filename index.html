@@ -171,7 +171,7 @@ footer a{color:var(--accent)}
   <p style="margin-top:8px" id="footLinks"></p>
 </div></footer>
 
-<script>
+<script type="module">
 /* ============================================================
    작가 정보는 여기만 바꾸면 됩니다 (다른 작가 템플릿으로 재사용)
    ▸ 비워 둔 항목("")은 화면에 나타나지 않습니다.
@@ -258,7 +258,23 @@ const AUTHOR = {
 };
 
 /* ---------- 도구 ---------- */
-const A = AUTHOR;
+/* ---------- 운영자 페이지에서 저장한 내용 불러오기 ----------
+   운영자 페이지(Firebase)에 저장된 내용이 있으면 위의 기본값 대신 사용합니다.
+   불러오지 못하면 위의 기본값이 그대로 보입니다. */
+const AUTHOR_SLUG = "mir";
+const FB_PROJECT = "kkumgeul-authors";
+async function loadAuthor(def){
+  try{
+    const ctl = new AbortController(); const t = setTimeout(()=>ctl.abort(), 5000);
+    const r = await fetch(`https://firestore.googleapis.com/v1/projects/${FB_PROJECT}/databases/(default)/documents/authors/${AUTHOR_SLUG}`, {signal:ctl.signal});
+    clearTimeout(t);
+    if(!r.ok) return def;
+    const j = await r.json();
+    const str = j.fields && j.fields.data && j.fields.data.stringValue;
+    return str ? Object.assign({}, def, JSON.parse(str)) : def;
+  }catch(e){ return def; }
+}
+const A = await loadAuthor(AUTHOR);
 const SHOW_EMPTY_LINKS = true;   // 샘플 확인용. 출시 때 false
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
