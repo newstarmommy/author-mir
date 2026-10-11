@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>미르 | 꿈글출판사</title>
+<meta name="description" content="감정에는 문장이 필요하다. 미르 작가의 공식 홈페이지.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#faf6ee; --card:#fffdf8; --ink:#2b2622; --sub:#6e655c; --line:#e6dccb;
+  --accent:#7a3b3b; --accent-soft:#f1e3dd; --btn:#4a3f3a; --btn-ink:#fffdf8;
+  --serif:"Noto Serif KR",Georgia,"Nanum Myeongjo",serif; --sans:"Noto Sans KR",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root{--paper:#1d1a17; --card:#26221e; --ink:#f0e8dc; --sub:#b3a898; --line:#3a342d;
+        --accent:#e0a090; --accent-soft:#3a2a26; --btn:#e8dccb; --btn-ink:#1d1a17;}
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;overflow-y:scroll;scrollbar-gutter:stable}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.8;
+  word-break:keep-all;overflow-wrap:break-word;-webkit-font-smoothing:antialiased;min-height:100vh;
+  display:flex;flex-direction:column}
+a{color:inherit}
+main{flex:1}
+.wrap{max-width:960px;margin:0 auto;padding:0 24px}
+
+/* ───── 상단 메뉴 ───── */
+header.top{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--paper) 94%,transparent);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;gap:28px;min-height:64px}
+.logo{font-family:var(--serif);font-weight:700;font-size:18px;line-height:1.3;text-decoration:none;white-space:nowrap;
+  background:var(--btn);color:var(--btn-ink);padding:7px 16px;border-radius:4px;letter-spacing:.02em}
+.logo:hover{background:var(--accent);color:var(--paper)}
+.menu{display:flex;gap:22px;list-style:none;font-size:15px;font-weight:500}
+.menu a{text-decoration:none;padding:6px 0;border-bottom:2px solid transparent;color:var(--ink)}
+.menu a:hover{color:var(--accent)}
+.menu a.on{border-bottom-color:var(--ink)}
+.search{margin-left:auto;display:flex;align-items:center;gap:8px;border:1px solid var(--line);
+  background:var(--card);border-radius:999px;padding:6px 8px 6px 16px;width:220px}
+.search input{border:0;background:transparent;font:inherit;font-size:14px;color:var(--ink);width:100%;outline:none}
+.search button{border:0;background:transparent;color:var(--sub);cursor:pointer;font-size:15px;line-height:1;
+  display:flex;align-items:center;justify-content:center;width:28px;height:28px}
+
+/* ───── 첫 화면 ───── */
+.hero{position:relative;min-height:calc(100vh - 65px);min-height:calc(100svh - 65px);display:flex;align-items:flex-end;overflow:hidden;
+  background:linear-gradient(160deg,#efe4d1 0%,#e4d3b8 55%,#d6bfa0 100%);color:#2b2622}
+@media (prefers-color-scheme:dark){.hero{background:linear-gradient(160deg,#2a2420 0%,#201b17 60%,#181411 100%);color:#f0e8dc}}
+.hero svg.deco{position:absolute;inset:0;width:100%;height:100%;opacity:.55;pointer-events:none}
+.hero.photo{background:#222 center/cover no-repeat;color:#fff}
+.hero.photo::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.6),rgba(0,0,0,0) 55%)}
+.hero .in{position:relative;z-index:1;width:100%;padding-bottom:64px}
+.hero .quote{font-family:var(--serif);font-size:clamp(16px,2.6vw,20px);margin-bottom:18px;opacity:.85}
+.hero h1{font-family:var(--serif);font-weight:700;font-size:clamp(56px,13vw,112px);line-height:1.02;letter-spacing:-.01em}
+.hero .rule{width:44px;height:2px;background:currentColor;margin:26px 0 0;opacity:.7}
+.hero .credit{position:absolute;right:24px;bottom:18px;font-size:12px;opacity:.8;z-index:1}
+
+
+/* ───── 오늘의 문장 ───── */
+.today{max-width:30em;margin-bottom:30px}
+.today .lab{font-size:12px;letter-spacing:.2em;opacity:.7;margin-bottom:12px}
+.today .sent{font-family:var(--serif);font-size:clamp(20px,3.4vw,28px);line-height:1.6;font-weight:600;transition:opacity .25s;min-height:3.2em;text-wrap:balance}
+.today .src{font-size:13px;opacity:.7;margin-top:6px;min-height:1.6em}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.chip,.tbtn{border:1px solid currentColor;background:transparent;color:inherit;border-radius:999px;
+  font:inherit;font-size:13px;line-height:1.4;padding:5px 14px;cursor:pointer}
+.chip{opacity:.8}
+.chip:hover,.tbtn:hover{opacity:1;background:rgba(127,127,127,.15)}
+.chip.on{background:var(--btn);color:var(--btn-ink);border-color:var(--btn);opacity:1}
+.tact{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.tbtn{display:inline-flex;align-items:center;gap:8px;padding:8px 18px;font-size:14px}
+
+/* ───── 서브 페이지 공통 ───── */
+.page{padding-top:56px;padding-bottom:80px}
+.eyebrow{font-size:12px;letter-spacing:.2em;color:var(--sub);margin-bottom:12px}
+.lead{max-width:40em;color:var(--ink);margin-bottom:36px}
+h2.sec{font-size:13px;letter-spacing:.06em;font-weight:700;padding-bottom:12px;margin:44px 0 20px;
+  border-bottom:2px solid var(--line);color:var(--ink)}
+.page p{margin-bottom:16px;max-width:38em}
+
+/* 한 줄에 하나씩 */
+.rows{list-style:none;display:flex;flex-direction:column;gap:12px}
+.row{display:grid;grid-template-columns:44px 1fr;column-gap:16px;align-items:center;
+  background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 20px;width:100%;text-decoration:none}
+a.row:hover{border-color:var(--accent)}
+.row .ico{width:44px;height:44px;border-radius:50%;background:var(--accent-soft);
+  display:flex;align-items:center;justify-content:center;font-size:20px;line-height:1}
+.row .txt{text-align:left}
+.row .t{font-weight:700;line-height:1.5}
+.row .d{color:var(--sub);font-size:14px;line-height:1.7;margin-top:2px}
+.row.plain{grid-template-columns:1fr}
+.row .date{color:var(--sub);font-size:13px;margin-bottom:2px}
+
+.empty{color:var(--sub);font-size:14px;border:1px dashed var(--line);border-radius:14px;padding:18px 20px;width:100%;list-style:none}
+
+/* 채널(소셜 허브) */
+.row.link{grid-template-columns:44px 1fr auto}
+.row.link .go{color:var(--sub);font-size:18px;line-height:1;padding-left:12px}
+.row.link.muted{opacity:.55}
+a.row.link:hover .go{color:var(--accent)}
+.fchips{display:flex;flex-wrap:wrap;gap:8px 14px;margin-bottom:12px}
+.fchips a{text-decoration:none;color:var(--ink);font-size:13px}
+.fchips a:hover{color:var(--accent)}
+
+/* 도서 카드 */
+.books{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:28px}
+.bk{text-align:center;text-decoration:none;display:block}
+.cover{aspect-ratio:3/4;border-radius:4px;background:linear-gradient(150deg,#f3ead9,#d8c6a8);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+  font-family:var(--serif);font-weight:700;color:#5a4636;font-size:26px;padding:16px;
+  box-shadow:0 8px 22px rgba(60,40,20,.16);overflow:hidden;position:relative}
+.cover small{font-size:11px;letter-spacing:.2em;font-weight:400;opacity:.7}
+.cover::before{content:"";position:absolute;left:0;top:0;bottom:0;width:7px;background:rgba(90,70,54,.18)}
+.cover img{width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0}
+.bk .bt{margin-top:18px;font-weight:700}
+.bk .bm{color:var(--sub);font-size:13px;margin-top:2px}
+.pill{display:inline-block;margin-top:12px;padding:7px 18px;border-radius:999px;background:var(--btn);color:var(--btn-ink);font-size:13px}
+
+.detail{display:grid;grid-template-columns:240px 1fr;gap:40px;align-items:start}
+.detail h1{font-family:var(--serif);font-size:30px;line-height:1.4;margin-bottom:4px}
+.detail .meta{color:var(--sub);font-size:14px;margin-bottom:20px}
+.tag{display:inline-block;font-size:12px;padding:2px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent);margin-right:6px}
+.btns{margin-top:20px;display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:10px 20px;border-radius:999px;
+  border:1px solid var(--accent);color:var(--accent);text-decoration:none;font-size:14px;line-height:1.4}
+.btn:hover{background:var(--accent);color:var(--paper)}
+.back{display:inline-block;margin-bottom:28px;color:var(--sub);font-size:14px;text-decoration:none}
+.back:hover{color:var(--accent)}
+
+footer{border-top:1px solid var(--line);padding:36px 0 48px;color:var(--sub);font-size:13px}
+footer .pub{font-family:var(--serif);color:var(--ink);font-size:15px;margin-bottom:4px}
+footer a{color:var(--accent)}
+
+@media (max-width:760px){
+  .wrap{padding:0 20px}
+  header.top .wrap{flex-wrap:wrap;gap:0 16px;padding-top:10px;padding-bottom:0;min-height:0}
+  .search{margin-left:auto;width:auto;flex:1;max-width:200px;order:2}
+  .logo{order:1}
+  .menu{order:3;width:100%;overflow-x:auto;gap:20px;padding:6px 0 4px;font-size:14px;white-space:nowrap;scrollbar-width:none}
+  .hero{min-height:calc(100svh - 104px)}
+  .hero .in{padding-bottom:44px}
+  .today .sent{min-height:4.8em}
+  .page{padding-top:36px;padding-bottom:56px}
+  .detail{grid-template-columns:1fr;gap:28px}
+  .detail .cover{max-width:200px}
+  .books{grid-template-columns:repeat(2,1fr);gap:20px}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="#/" id="logo"></a>
+    <ul class="menu" id="menu"></ul>
+    <form class="search" id="searchForm" role="search">
+      <input id="q" type="search" placeholder="검색…" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+    </form>
+  </div>
+</header>
+
+<main id="view"></main>
+
+<footer><div class="wrap">
+  <div class="fchips" id="fSocial"></div>
+  <p class="pub">꿈글출판사 소속 작가</p>
+  <p id="footNote"></p>
+  <p style="margin-top:8px" id="footLinks"></p>
+</div></footer>
+
+<script>
+/* ============================================================
+   작가 정보는 여기만 바꾸면 됩니다 (다른 작가 템플릿으로 재사용)
+   ▸ 비워 둔 항목("")은 화면에 나타나지 않습니다.
+   ▸ 사진이 있으면 hero.image 에 경로를 넣으세요 → 사진형 첫 화면으로 바뀝니다.
+   ============================================================ */
+const AUTHOR = {
+  name: "미르",
+  nameEn: "Mir",
+  quote: "감정에는 문장이 필요하다.",
+  hero: { image: "", credit: "" },
+  /* 오늘의 문장: 작품에서 뽑은 문장으로 교체하세요. tag(감정·주제)를 넣으면 "지금 마음은?" 선택 버튼이 생깁니다.
+     tag를 모두 비우면 선택 버튼 없이 기본형으로 동작합니다. src는 출처(책 제목 등)이며 비워도 됩니다. */
+  sentences: [
+    { text:"이름을 붙여 주면, 마음은 조금 덜 낯설어진다.", tag:"불안", src:"" },
+    { text:"말하지 못한 감정은 어딘가에서 문장이 되기를 기다린다.", tag:"그리움", src:"" },
+    { text:"설렘은 아직 오지 않은 날의 첫 문장이다.", tag:"설렘", src:"" },
+    { text:"괜찮지 않다고 쓰는 일에서, 괜찮아지는 일이 시작된다.", tag:"위로", src:"" },
+    { text:"오늘의 마음에도 좋은 이름이 있을 거예요.", tag:"위로", src:"" },
+    { text:"떨리는 마음을 문장으로 적어 두면, 내일의 나에게 건네는 편지가 된다.", tag:"불안", src:"" },
+    { text:"그리움은 지나간 시간이 아직 우리를 부르는 소리다.", tag:"그리움", src:"" },
+    { text:"처음이라서 떨리는 것이 아니라, 소중해서 떨리는 것이다.", tag:"설렘", src:"" }
+  ],          // 예: image:"images/hero.jpg", credit:"© 사진가 이름"
+  profile: {
+    lead: "단편소설을 쓰고, 감정을 글로 풀어내는 시간을 함께 만드는 작가입니다.",
+    about: [
+      "시사문단 단편소설로 등단했고, 별하 작가회에서 활동하고 있습니다. 시와 수필, 단편, 웹소설까지 여러 갈래의 글을 쓰며 공모전에도 꾸준히 도전하고 있습니다.",
+      "‘감정에는 문장이 필요하다’는 마음으로 감정코칭과 낭독글쓰기를 연결한 프로그램을 운영합니다. 마음에 이름을 붙이고, 그 이름을 문장으로 옮기는 일을 돕는 것이 제가 쓰는 글과 가르치는 일의 공통된 출발점입니다.",
+      "꿈글출판사를 세워 좋은 글이 책이 되는 길도 함께 만들고 있습니다."
+    ],
+    history: [
+      { icon:"🖋️", title:"시사문단 단편소설 등단", desc:"" },
+      { icon:"🤝", title:"별하 작가회 회원", desc:"" }
+      // 수상 이력은 확인 후 추가: { icon:"🏆", title:"○○ 문학상 수상", desc:"2026" }
+    ],
+    activities: [
+      { icon:"🎙️", title:"낭독글쓰기 · 나만의 감정사전", desc:"읽고, 소리 내어 읽고, 내 감정을 문장으로 써 보는 8주 글쓰기 프로그램" },
+      { icon:"📚", title:"미르북클럽", desc:"함께 읽고 이야기 나누는 독서 모임" },
+      { icon:"🌱", title:"@naming.emotion", desc:"감정에 이름을 붙이는 콘텐츠를 나누는 공간" }
+    ]
+  },
+  books: [
+    {
+      id: "white-room",
+      title: "하얀방",
+      genre: "작품모음집",
+      year: "",                      // 출간 연도 확인 후 입력
+      publisher: "꿈글출판사",
+      desc: "여러 작가의 작품을 엮은 작품모음집입니다. 미르 작가의 단편이 수록되어 있습니다.",
+      formats: ["종이책", "전자책"],
+      cover: "",                     // 표지 이미지 경로 (예: images/white-room.jpg)
+      /* 구입처: 교보문고 상세 페이지 주소 1개. 지금은 임시(가칭) 검색 주소입니다.
+         출간 후 책 상세 페이지 주소로 바꿔 주세요. */
+      buy: { store:"교보문고", type:"종이책", href:"https://search.kyobobook.co.kr/search?keyword=%ED%95%98%EC%96%80%EB%B0%A9" }
+    }
+  ],
+  /* 채널(소셜 허브): 주소(href)를 넣으면 링크가 켜집니다. 안 쓰는 채널은 줄을 지우세요.
+     출시 전에는 SHOW_EMPTY_LINKS 를 false 로 바꾸면 주소 없는 채널은 숨겨집니다. */
+  social: [
+    { icon:"📷", label:"인스타그램", handle:"@naming.emotion", href:"" },
+    { icon:"🧵", label:"스레드",     handle:"@naming.emotion", href:"" },
+    { icon:"▶️", label:"유튜브",     handle:"",                 href:"" },
+    { icon:"✍️", label:"블로그",     handle:"",                 href:"" },
+    { icon:"🔗", label:"리틀리",     handle:"",                 href:"" },
+    { icon:"💬", label:"카카오톡 채널", handle:"",              href:"" },
+    { icon:"💌", label:"뉴스레터",   handle:"",                 href:"" }
+    // 다른 플랫폼도 같은 형식으로 줄만 추가하면 됩니다.
+    // { icon:"🎧", label:"팟캐스트", handle:"채널 이름", href:"https://..." }
+  ],
+  archive: [
+    // { icon:"✍️", title:"글 제목", desc:"한 줄 설명", date:"2026.10", href:"" }
+  ],
+  notices: [
+    // { title:"공지 제목", desc:"내용 한 줄", date:"2026.10.11" }
+  ],
+  contact: {
+    lead: "강연, 낭독글쓰기 프로그램, 협업과 출판 문의를 기다립니다.",
+    email: "",                      // 이메일 확인 후 입력
+    note: "문의는 꿈글출판사를 통해서도 받고 있습니다."
+  },
+  footNote: "이 페이지는 꿈글출판사와 계약한 작가를 위해 꿈글이 제작하고 운영합니다.",
+  footLinks: [
+    { label:"꿈글출판사 홈페이지", href:"" }       // 꿈글 주소 입력
+  ]
+};
+
+/* ---------- 도구 ---------- */
+const A = AUTHOR;
+const SHOW_EMPTY_LINKS = true;   // 샘플 확인용. 출시 때 false
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const MENU = [["프로필","#/profile"],["도서","#/book"],["아카이브","#/archive"],["문의","#/contact"],["공지사항","#/notice"]];
+
+$("logo").textContent = A.nameEn ? `${A.nameEn} ${A.name}`.trim() : A.name;
+$("footNote").textContent = A.footNote;
+$("fSocial").innerHTML = (A.social||[]).filter(x=>x.href).map(x=>`<a href="${esc(x.href)}" target="_blank" rel="noopener">${esc(x.label)} ↗</a>`).join("");
+$("footLinks").innerHTML = A.footLinks.filter(l=>l.href).map(l=>`<a href="${esc(l.href)}">${esc(l.label)}</a>`).join(" · ");
+
+/* 첫 화면 장식 (사진이 없을 때) */
+const DECO = `<svg class="deco" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <g fill="none" stroke="currentColor" stroke-width="1" opacity=".35">
+    ${Array.from({length:14},(_,i)=>`<path d="M-50 ${120+i*38} C 300 ${40+i*30}, 700 ${260+i*34}, 1250 ${90+i*40}"/>`).join("")}
+  </g>
+  <circle cx="930" cy="230" r="120" fill="currentColor" opacity=".08"/>
+  <circle cx="930" cy="230" r="70" fill="none" stroke="currentColor" opacity=".25"/>
+</svg>`;
+
+/* ---------- 목록 컴포넌트 ---------- */
+function rows(list, emptyMsg){
+  if(!list.length) return `<ul class="rows"><li class="empty">${emptyMsg}</li></ul>`;
+  return `<ul class="rows">` + list.map(i => {
+    const inner = `
+      <span class="ico">${i.icon||"•"}</span>
+      <div class="txt">${i.date?`<div class="date">${esc(i.date)}</div>`:""}<div class="t">${esc(i.title)}</div>${i.desc?`<div class="d">${esc(i.desc)}</div>`:""}</div>`;
+    return i.href ? `<li><a class="row" href="${esc(i.href)}" target="_blank" rel="noopener">${inner}</a></li>` : `<li class="row">${inner}</li>`;
+  }).join("") + `</ul>`;
+}
+function socialRows(){
+  const list = (A.social||[]).filter(x => x.href || SHOW_EMPTY_LINKS);
+  if(!list.length) return `<ul class="rows"><li class="empty">채널을 준비하고 있습니다.</li></ul>`;
+  return `<ul class="rows">` + list.map(x => {
+    const inner = `<span class="ico">${x.icon||"🔗"}</span>
+      <div class="txt"><div class="t">${esc(x.label)}</div><div class="d">${x.href ? esc(x.handle||"바로가기") : "주소를 입력하면 연결됩니다"}</div></div>
+      <span class="go">${x.href?"↗":""}</span>`;
+    return x.href
+      ? `<li><a class="row link" href="${esc(x.href)}" target="_blank" rel="noopener">${inner}</a></li>`
+      : `<li class="row link muted">${inner}</li>`;
+  }).join("") + `</ul>`;
+}
+function storeRows(b){
+  const all = b.buy ? [b.buy] : [];
+  const list = all.filter(x => x.href || SHOW_EMPTY_LINKS);
+  if(!list.length) return `<ul class="rows"><li class="empty">구입처를 준비하고 있습니다. 서점에서 ‘${esc(b.title)}’을(를) 검색해 주세요.</li></ul>`;
+  return `<ul class="rows">` + list.map(x => {
+    const ico = x.type==="전자책" ? "📱" : "📕";
+    const inner = `<span class="ico">${ico}</span>
+      <div class="txt"><div class="t">${esc(x.store)}</div><div class="d">${x.href ? esc(x.type||"구매하기")+" 구매하기" : "구매 링크를 입력하면 연결됩니다"}</div></div>
+      <span class="go">${x.href?"↗":""}</span>`;
+    return x.href
+      ? `<li><a class="row link" href="${esc(x.href)}" target="_blank" rel="noopener">${inner}</a></li>`
+      : `<li class="row link muted">${inner}</li>`;
+  }).join("") + `</ul>`;
+}
+function noticeRows(list, emptyMsg){
+  if(!list.length) return `<ul class="rows"><li class="empty">${emptyMsg}</li></ul>`;
+  return `<ul class="rows">` + list.map(n => `
+    <li class="row plain"><div class="txt">${n.date?`<div class="date">${esc(n.date)}</div>`:""}<div class="t">${esc(n.title)}</div>${n.desc?`<div class="d">${esc(n.desc)}</div>`:""}</div></li>`).join("") + `</ul>`;
+}
+function cover(b){
+  return `<div class="cover">${b.cover?`<img src="${esc(b.cover)}" alt="${esc(b.title)} 표지">`:`<small>${esc(b.publisher||"")}</small><span>${esc(b.title)}</span>`}</div>`;
+}
+function bookCard(b){
+  const meta = [b.year, b.genre].filter(Boolean).join(" · ");
+  return `<a class="bk" href="#/book/${esc(b.id)}">${cover(b)}<div class="bt">${esc(b.title)}</div><div class="bm">${esc(meta)}</div><span class="pill">자세히 보기</span></a>`;
+}
+
+/* ---------- 화면(페이지) ---------- */
+const VIEWS = {
+  home(){
+    const h = A.hero||{};
+    const photo = !!h.image;
+    return `<section class="hero ${photo?"photo":""}" ${photo?`style="background-image:url('${esc(h.image)}')"`:""}>
+      ${photo?"":DECO}
+      <div class="wrap in">
+        <div class="today" id="today"></div>
+        <h1>${esc(A.nameEn||A.name)}${A.nameEn?`<br>${esc(A.name)}`:""}</h1>
+        <div class="rule"></div>
+      </div>
+      ${photo&&h.credit?`<span class="credit">${esc(h.credit)}</span>`:""}
+    </section>`;
+  },
+  profile(){
+    const p = A.profile;
+    return `<div class="wrap page">
+      <p class="eyebrow">PROFILE</p>
+      <p class="lead" style="font-family:var(--serif);font-size:20px">${esc(p.lead)}</p>
+      ${p.about.map(t=>`<p>${esc(t)}</p>`).join("")}
+      <h2 class="sec">등단 · 수상 이력</h2>
+      ${rows(p.history,"수상 이력이 생길 때마다 이곳에 추가됩니다.")}
+      <h2 class="sec">활동</h2>
+      ${rows(p.activities,"")}
+      <h2 class="sec">채널</h2>
+      ${socialRows()}
+    </div>`;
+  },
+  book(){
+    return `<div class="wrap page">
+      <p class="eyebrow">BOOKS</p>
+      <p class="lead">${esc(A.name)} 작가의 책을 한자리에 모았습니다. 꿈글출판사에서 펴낸 책이 나올 때마다 이곳에 추가됩니다.</p>
+      <div class="books">${A.books.map(bookCard).join("")}</div>
+    </div>`;
+  },
+  bookDetail(id){
+    const b = A.books.find(x=>x.id===id);
+    if(!b) return VIEWS.notfound();
+    const meta = [b.year, b.genre, b.publisher].filter(Boolean).join(" · ");
+    return `<div class="wrap page">
+      <a class="back" href="#/book">← 도서 목록</a>
+      <div class="detail">
+        ${cover(b)}
+        <div>
+          <h1>${esc(b.title)}</h1>
+          <p class="meta">${esc(meta)}</p>
+          <p>${esc(b.desc)}</p>
+          <p>${(b.formats||[]).map(f=>`<span class="tag">${esc(f)}</span>`).join("")}</p>
+          <h2 class="sec" style="margin-top:32px">구입처</h2>
+          ${storeRows(b)}
+        </div>
+      </div>
+    </div>`;
+  },
+  archive(){
+    return `<div class="wrap page">
+      <p class="eyebrow">ARCHIVE</p>
+      <p class="lead">쓰고 말하고 나눈 기록을 모아 둡니다. 기고한 글, 낭독, 인터뷰, 강연 소식이 이곳에 쌓입니다.</p>
+      ${rows(A.archive,"첫 기록을 준비하고 있습니다.")}
+    </div>`;
+  },
+  contact(){
+    const c = A.contact;
+    const mail = c.email ? `<a class="btn" href="mailto:${esc(c.email)}"><span>✉️</span><span>${esc(c.email)}</span></a>` : "";
+    const pub = (A.footLinks.find(l=>l.href)||null);
+    return `<div class="wrap page">
+      <p class="eyebrow">CONTACT</p>
+      <p class="lead">${esc(c.lead)}</p>
+      <ul class="rows">
+        <li class="row"><span class="ico">🎤</span><div class="txt"><div class="t">강연 · 프로그램</div><div class="d">낭독글쓰기, 감정코칭, 글쓰기 클래스 등</div></div></li>
+        <li class="row"><span class="ico">🤝</span><div class="txt"><div class="t">협업 · 기고</div><div class="d">글쓰기와 감정 관련 협업, 원고 청탁</div></div></li>
+        <li class="row"><span class="ico">📖</span><div class="txt"><div class="t">출판 · 도서</div><div class="d">도서 구입, 출판 관련 문의</div></div></li>
+      </ul>
+      <p style="margin-top:28px">${esc(c.note)}</p>
+      <div class="btns">${mail}${pub?`<a class="btn" href="${esc(pub.href)}"><span>🏠</span><span>${esc(pub.label)}</span></a>`:""}</div>
+    </div>`;
+  },
+  notice(){
+    return `<div class="wrap page">
+      <p class="eyebrow">NOTICE</p>
+      <p class="lead">새 책, 프로그램, 일정 소식을 알려 드립니다.</p>
+      ${noticeRows(A.notices,"등록된 공지가 없습니다.")}
+    </div>`;
+  },
+  search(q){
+    const k = q.trim().toLowerCase();
+    const hit = (...f) => f.some(x => String(x||"").toLowerCase().includes(k));
+    const bs = A.books.filter(b=>hit(b.title,b.desc,b.genre));
+    const ar = A.archive.filter(a=>hit(a.title,a.desc));
+    const nt = A.notices.filter(a=>hit(a.title,a.desc));
+    const pr = [...A.profile.history, ...A.profile.activities].filter(a=>hit(a.title,a.desc));
+    const total = bs.length+ar.length+nt.length+pr.length;
+    return `<div class="wrap page">
+      <p class="eyebrow">SEARCH</p>
+      <p class="lead">‘${esc(q)}’ 검색 결과 ${total}건</p>
+      ${bs.length?`<h2 class="sec">도서</h2><div class="books">${bs.map(bookCard).join("")}</div>`:""}
+      ${pr.length?`<h2 class="sec">프로필</h2>${rows(pr,"")}`:""}
+      ${ar.length?`<h2 class="sec">아카이브</h2>${rows(ar,"")}`:""}
+      ${nt.length?`<h2 class="sec">공지사항</h2>${noticeRows(nt,"")}`:""}
+      ${total?"":`<ul class="rows"><li class="empty">일치하는 결과가 없습니다.</li></ul>`}
+    </div>`;
+  },
+  notfound(){
+    return `<div class="wrap page"><p class="lead">찾는 페이지가 없습니다.</p><a class="btn" href="#/">처음으로</a></div>`;
+  }
+};
+
+
+/* ---------- 오늘의 문장 ---------- */
+function initToday(){
+  const box = $("today"); if(!box) return;
+  const base = (A.sentences||[]).filter(x=>x.text);
+  const pool = base.length ? base : [{text:A.quote, tag:"", src:""}];
+  const tags = [...new Set(pool.map(x=>x.tag).filter(Boolean))];
+  let tag = "", cur = -1, curItem = null;
+  const list = () => pool.filter(x => !tag || x.tag===tag);
+  box.innerHTML = `
+    <p class="lab">TODAY'S SENTENCE · 오늘의 문장</p>
+    <p class="sent" id="tSent" aria-live="polite"></p>
+    <p class="src" id="tSrc"></p>
+    ${tags.length?`<div class="chips" id="tChips"><span style="font-size:13px;opacity:.75;align-self:center;margin-right:2px">지금 마음은?</span>${tags.map(t=>`<button type="button" class="chip" data-tag="${esc(t)}">${esc(t)}</button>`).join("")}</div>`:""}
+    <div class="tact">
+      <button type="button" class="tbtn" id="tNext">↻ 다른 문장 보기</button>
+      <button type="button" class="tbtn" id="tSave">⬇ 카드로 저장</button>
+    </div>`;
+  function show(){
+    const l = list(); if(!l.length) return;
+    let i; do { i = Math.floor(Math.random()*l.length); } while(l.length>1 && l[i]===curItem);
+    curItem = l[i];
+    const nb = $("tNext"), only = l.length<=1;
+    nb.disabled = only; nb.style.opacity = only ? .45 : ""; nb.style.cursor = only ? "default" : "pointer";
+    nb.textContent = only ? "이 마음의 문장은 하나예요" : "↻ 다른 문장 보기";
+    const sent = $("tSent"); sent.style.opacity = 0;
+    setTimeout(()=>{ sent.textContent = curItem.text; $("tSrc").textContent = curItem.src ? `— ${curItem.src}` : ""; sent.style.opacity = 1; }, 160);
+  }
+  $("tNext").onclick = show;
+  $("tSave").onclick = () => saveCard(curItem);
+  box.querySelectorAll(".chip").forEach(b => b.onclick = () => {
+    tag = (tag===b.dataset.tag) ? "" : b.dataset.tag;
+    box.querySelectorAll(".chip").forEach(x => x.classList.toggle("on", x.dataset.tag===tag));
+    curItem = null; show();
+  });
+  show();
+}
+
+/* 문장 카드 이미지(PNG) 만들기 */
+async function saveCard(item){
+  if(!item) return;
+  const W=1080, H=1350, c=document.createElement("canvas"); c.width=W; c.height=H;
+  const g=c.getContext("2d"), F='"Noto Serif KR",Georgia,serif';
+  const host = (A.footLinks.find(l=>l.href)||{}).href;
+  const site = host ? host.replace(/^https?:\/\//,"").replace(/\/$/,"") : "";
+  try { await document.fonts.load(`600 54px ${F}`, item.text+(item.src||"")+A.name+(A.nameEn||"")+site+"꿈글출판사"); } catch(e){}
+  const bg=g.createLinearGradient(0,0,W,H); bg.addColorStop(0,"#f3eadb"); bg.addColorStop(1,"#dcc7a9");
+  g.fillStyle=bg; g.fillRect(0,0,W,H);
+  g.strokeStyle="rgba(90,70,54,.35)"; g.lineWidth=2; g.strokeRect(56,56,W-112,H-112);
+  g.fillStyle="#2b2622"; g.textBaseline="alphabetic"; g.textAlign="left";
+  g.font=`400 24px ${F}`; g.globalAlpha=.6; g.fillText("TODAY'S SENTENCE", 120, 150); g.globalAlpha=1;
+  // 줄바꿈(어절 단위)
+  g.font=`600 56px ${F}`;
+  const maxW=W-240, words=item.text.split(" "), lines=[]; let line="";
+  for(const w of words){
+    const t = line ? line+" "+w : w;
+    if(g.measureText(t).width<=maxW) line=t;
+    else { if(line) lines.push(line); line=w;
+      while(g.measureText(line).width>maxW){ let k=line.length; while(k>1&&g.measureText(line.slice(0,k)).width>maxW)k--; lines.push(line.slice(0,k)); line=line.slice(k); } }
+  }
+  if(line) lines.push(line);
+  const lh=92, total=lines.length*lh; let y=(H-total)/2+50;
+  lines.forEach(l=>{ g.fillText(l,120,y); y+=lh; });
+  if(item.src){ g.font=`400 28px ${F}`; g.globalAlpha=.7; g.fillText("— "+item.src,120,y+24); g.globalAlpha=1; }
+  g.fillStyle="#4a3f3a"; g.fillRect(120,H-270,56,3);
+  g.fillStyle="#2b2622"; g.font=`700 44px ${F}`; g.fillText(A.nameEn?`${A.nameEn} ${A.name}`:A.name,120,H-195);
+  g.font=`400 26px ${F}`; g.globalAlpha=.7; g.fillText("꿈글출판사"+(site?" · "+site:""),120,H-145); g.globalAlpha=1;
+  c.toBlob(b=>{
+    const a=document.createElement("a"); a.href=URL.createObjectURL(b);
+    a.download=`${A.nameEn||A.name}-오늘의문장.png`; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+  },"image/png");
+}
+
+/* ---------- 라우터 ---------- */
+function route(){
+  const raw = decodeURIComponent((location.hash || "#/").slice(1));
+  const [path, query=""] = raw.split("?");
+  const seg = path.split("/").filter(Boolean);
+  let html, key = seg[0] || "home", title = "";
+  if(!seg.length) html = VIEWS.home();
+  else if(seg[0]==="book" && seg[1]) { html = VIEWS.bookDetail(seg[1]); title = (A.books.find(b=>b.id===seg[1])||{}).title || ""; }
+  else if(seg[0]==="search") html = VIEWS.search(new URLSearchParams(query).get("q")||"");
+  else if(VIEWS[seg[0]] && seg[0]!=="home") html = VIEWS[seg[0]]();
+  else html = VIEWS.notfound();
+  $("view").innerHTML = html;
+  initToday();
+  document.querySelectorAll("#menu a").forEach(a => a.classList.toggle("on", a.getAttribute("href").split("/")[1]===key));
+  const menuName = (MENU.find(m=>m[1].split("/")[1]===key)||[])[0];
+  document.title = [title||menuName, A.nameEn?`${A.nameEn} ${A.name}`:A.name].filter(Boolean).join(" | ") + " · 꿈글출판사";
+  window.scrollTo(0,0);
+}
+$("menu").innerHTML = MENU.map(([t,h])=>`<li><a href="${h}">${t}</a></li>`).join("");
+$("searchForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const q = $("q").value.trim();
+  if(q) location.hash = "#/search?q=" + encodeURIComponent(q);
+});
+window.addEventListener("hashchange", route);
+route();
+</script>
+</body>
+</html>
