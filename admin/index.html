@@ -38,6 +38,10 @@ main{padding:24px 0 100px}
 .grid3{display:grid;grid-template-columns:80px 1fr;gap:0 14px}
 @media(max-width:600px){.grid2{grid-template-columns:1fr}}
 .row2{display:flex;gap:8px}
+.tools{display:flex;gap:6px;align-items:center}
+.vis{display:flex;align-items:center;gap:5px;margin:0 6px 0 0;color:var(--ink);font-size:13px}
+.vis input{width:auto}
+.item.off{opacity:.6}
 .preview{margin-top:8px;max-width:140px;aspect-ratio:3/4;background:var(--line);border-radius:4px;overflow:hidden}
 .preview.wide{max-width:260px;aspect-ratio:16/9}
 .preview img{width:100%;height:100%;object-fit:cover;display:block}
@@ -128,7 +132,11 @@ function fld(label, p, o={}){
 }
 const imgTag = v => v ? `<img src="${esc(v)}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('div'),{textContent:'이미지를 불러오지 못했어요',style:'padding:8px;font-size:12px'}))">` : "";
 function item(listPath, i, inner, title){
-  return `<div class="item"><div class="head"><b>${esc(title)}</b><button class="sm del" data-act="del" data-p="${listPath}" data-i="${i}">삭제</button></div>${inner}</div>`;
+  const it = get(listPath)[i];
+  const isObj = it && typeof it === "object";
+  const vis = isObj ? `<label class="vis"><input type="checkbox" data-hide="${listPath}.${i}.hidden"${it.hidden?"":" checked"}> 사이트에 보이기</label>` : "";
+  const mv = `<button class="sm" data-act="up" data-p="${listPath}" data-i="${i}" title="위로">↑</button><button class="sm" data-act="down" data-p="${listPath}" data-i="${i}" title="아래로">↓</button>`;
+  return `<div class="item${isObj&&it.hidden?" off":""}"><div class="head"><b>${esc(title)}${isObj&&it.hidden?" · 숨김":""}</b><span class="tools">${vis}${mv}<button class="sm del" data-act="del" data-p="${listPath}" data-i="${i}">삭제</button></span></div>${inner}</div>`;
 }
 const addBtn = (p, label) => `<button data-act="add" data-p="${p}">+ ${label}</button>`;
 
@@ -257,7 +265,9 @@ function render(){
 
 /* ---------- 이벤트 ---------- */
 document.addEventListener("input", e=>{
-  const el = e.target; const p = el.dataset && el.dataset.p; if(!p) return;
+  const el = e.target;
+  if(el.dataset && el.dataset.hide){ set(el.dataset.hide, !el.checked); render(); return; }
+  const p = el.dataset && el.dataset.p; if(!p) return;
   let v = el.value;
   if(el.dataset.t==="csv") v = v.split(",").map(s=>s.trim()).filter(Boolean);
   set(p, v);
@@ -270,6 +280,11 @@ document.addEventListener("click", e=>{
   if(b.dataset.act==="add"){
     const p=b.dataset.p; const arr=get(p); arr.push(NEW[p]()); markDirty(); render();
     setTimeout(()=>window.scrollTo(0,document.body.scrollHeight),0); return;
+  }
+  if(b.dataset.act==="up"||b.dataset.act==="down"){
+    const arr=get(b.dataset.p), i=+b.dataset.i, j=b.dataset.act==="up"?i-1:i+1;
+    if(j<0||j>=arr.length) return;
+    [arr[i],arr[j]]=[arr[j],arr[i]]; markDirty(); render(); return;
   }
   if(b.dataset.act==="del"){
     if(!confirm("이 항목을 삭제할까요?")) return;

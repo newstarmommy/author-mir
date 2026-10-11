@@ -275,6 +275,10 @@ async function loadAuthor(def){
   }catch(e){ return def; }
 }
 const A = await loadAuthor(AUTHOR);
+/* 운영자 페이지에서 ‘숨김’으로 둔 항목은 보이지 않게 합니다 */
+const vis = l => (l||[]).filter(x => !(x && x.hidden));
+["sentences","books","social","archive","notices","footLinks"].forEach(k => { A[k] = vis(A[k]); });
+if(A.profile){ ["history","activities"].forEach(k => { A.profile[k] = vis(A.profile[k]); }); }
 const SHOW_EMPTY_LINKS = true;   // 샘플 확인용. 출시 때 false
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
