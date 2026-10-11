@@ -92,6 +92,29 @@ const auth = getAuth(app), db = getFirestore(app);
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
+
+/* ---------- 작가 색상: 색 하나로 전체 팔레트를 만듭니다 ---------- */
+function themeVars(hex){
+  const m = /^#?([0-9a-f]{6})$/i.exec(String(hex||"").trim()); if(!m) return null;
+  const n = parseInt(m[1],16), r=(n>>16&255)/255, g=(n>>8&255)/255, b=(n&255)/255;
+  const mx=Math.max(r,g,b), mn=Math.min(r,g,b), d=mx-mn; let h=0;
+  if(d){ h = mx===r ? ((g-b)/d)%6 : mx===g ? (b-r)/d+2 : (r-g)/d+4; h=Math.round(h*60); if(h<0) h+=360; }
+  const l=(mx+mn)/2, s = d ? d/(1-Math.abs(2*l-1)) : 0;
+  const S = Math.round(Math.min(Math.max(s*100,28),72));
+  const A = Math.round(Math.min(Math.max(l*100,28),38));
+  const H = (L,sat) => `hsl(${h} ${sat}% ${L}%)`;
+  return {
+    light:{"--paper":H(96,32),"--card":H(99,40),"--ink":H(14,22),"--sub":H(38,10),"--line":H(86,24),
+      "--accent":H(A,S),"--accent-soft":H(92,38),"--btn":H(22,Math.min(S,40)),"--btn-ink":H(99,40),
+      "--hero1":H(93,40),"--hero2":H(86,36),"--hero3":H(77,32),
+      "--cover1":H(93,40),"--cover2":H(80,32),"--cover-ink":H(26,35),"--ink-l":H(14,22),"--btn-l":H(22,35)},
+    dark:{"--paper":H(10,16),"--card":H(14,15),"--ink":H(90,25),"--sub":H(66,10),"--line":H(22,12),
+      "--accent":H(76,50),"--accent-soft":H(20,28),"--btn":H(88,30),"--btn-ink":H(10,16),
+      "--hero1":H(14,18),"--hero2":H(10,15),"--hero3":H(7,14)}
+  };
+}
+
+const PRESETS = [["와인","#7a3b3b"],["올리브","#5b6b3a"],["네이비","#2f4a6b"],["보라","#5d4a7a"],["청록","#2f6b66"],["머스터드","#8a6a1f"],["로즈","#a14a63"],["슬레이트","#4a5560"]];
 const EMOTIONS = ["불안","그리움","설렘","위로","기쁨","슬픔","용기","사랑"];
 const TABS = [["basic","기본 정보"],["sent","오늘의 문장"],["prof","프로필"],["books","도서"],["social","소셜 채널"],["arch","아카이브·공지"],["contact","문의·하단"]];
 
@@ -99,7 +122,7 @@ let slug = "mir", D = null, tab = "basic", dirty = false, user = null, exists = 
 
 /* ---------- 데이터 도우미 ---------- */
 function blank(){
-  return {name:"",nameEn:"",quote:"",hero:{image:"",credit:""},sentences:[],
+  return {name:"",nameEn:"",quote:"",hero:{image:"",credit:""},theme:{color:""},sentences:[],
     profile:{lead:"",about:[],history:[],activities:[]},books:[],social:[],archive:[],notices:[],
     contact:{lead:"",email:"",note:""},footNote:"이 페이지는 꿈글출판사와 계약한 작가를 위해 꿈글이 제작하고 운영합니다.",footLinks:[{label:"꿈글출판사 홈페이지",href:""}]};
 }
@@ -107,6 +130,7 @@ function normalize(x){
   const b = blank();
   const o = Object.assign(b, x||{});
   o.hero = Object.assign(b.hero, o.hero||{});
+  o.theme = Object.assign({color:""}, o.theme||{});
   o.profile = Object.assign(blank().profile, o.profile||{});
   o.contact = Object.assign(blank().contact, o.contact||{});
   ["sentences","books","social","archive","notices","footLinks"].forEach(k=>{ if(!Array.isArray(o[k])) o[k]=[]; });
@@ -141,12 +165,33 @@ function item(listPath, i, inner, title){
 const addBtn = (p, label) => `<button data-act="add" data-p="${p}">+ ${label}</button>`;
 
 /* ---------- 탭 ---------- */
+function themePreview(hex){
+  const tv = themeVars(hex);
+  const one = (o,label) => { const st = o ? Object.entries(o).map(([k,v])=>`${k}:${v}`).join(";") : "";
+    const d = o || {"--paper":"#faf6ee","--card":"#fffdf8","--ink":"#2b2622","--accent":"#7a3b3b","--accent-soft":"#f1e3dd","--btn":"#4a3f3a","--btn-ink":"#fffdf8","--line":"#e6dccb"};
+    const g = k => `var(${k},${d[k]})`;
+    return `<div style="${st};flex:1;min-width:220px;background:${g("--paper")};color:${g("--ink")};border:1px solid ${g("--line")};border-radius:8px;padding:14px">
+      <div style="font-size:12px;opacity:.7">${label}</div>
+      <div style="margin:6px 0"><span style="background:${g("--btn")};color:${g("--btn-ink")};padding:3px 10px;border-radius:4px;font-weight:700;font-size:13px">작가 이름</span></div>
+      <div style="background:${g("--card")};border:1px solid ${g("--line")};border-radius:6px;padding:8px 10px;font-size:13px">오늘의 문장은 <b style="color:${g("--accent")}">이렇게</b> 보여요</div>
+      <div style="margin-top:8px;display:inline-block;background:${g("--accent-soft")};color:${g("--accent")};border-radius:20px;padding:2px 12px;font-size:12px">위로</div></div>`; };
+  return `<div class="row2" style="flex-wrap:wrap">${one(tv&&tv.light,"밝은 화면")}${one(tv?tv.dark:{"--paper":"#1d1a17","--card":"#26221e","--ink":"#f0e8dc","--accent":"#e0a090","--accent-soft":"#3a2a26","--btn":"#e8dccb","--btn-ink":"#1d1a17","--line":"#3a342d"},"어두운 화면")}</div>`;
+}
 const VIEWS = {
   basic(){ return `
     <h2>기본 정보</h2>
     ${fld("작가 이름","name",{ph:"예: 미르"})}
     ${fld("영문 이름 (선택)","nameEn",{ph:"예: Mir"})}
     ${fld("대표 한 줄","quote",{hint:"첫 화면에 크게 나오는 문장이에요."})}
+    <h2>작가 색상</h2>
+    <div class="hint">색 하나만 고르면 배경·글자·버튼·강조색이 어울리게 자동으로 바뀌어요. 밝은 화면과 어두운 화면(다크 모드) 모두 만들어져요. 비우면 기본 색(따뜻한 베이지)이에요.</div>
+    <div class="row2" style="align-items:center;flex-wrap:wrap">
+      <input type="color" id="themeColor" value="${esc(get("theme.color")||"#7a3b3b")}" style="width:56px;height:40px;padding:2px">
+      <span id="themeHex" class="hint" style="margin:0">${esc(get("theme.color")||"기본 색 사용 중")}</span>
+      <button class="sm" data-act="themeClear">기본 색으로</button>
+    </div>
+    <div class="row2" style="flex-wrap:wrap;margin-top:10px">${PRESETS.map(([n,c])=>`<button class="sm" data-act="preset" data-c="${c}" style="border-left:14px solid ${c}">${n}</button>`).join("")}</div>
+    <div id="themePrev" style="margin-top:12px">${themePreview(get("theme.color"))}</div>
     <h2>첫 화면 사진 (선택)</h2>
     <div class="hint">사진이 없으면 글자만 있는 첫 화면이 나와요. 사진 주소(아임웹 이미지 주소 등)를 붙여넣으세요.</div>
     <div class="box">
@@ -266,6 +311,7 @@ function render(){
 /* ---------- 이벤트 ---------- */
 document.addEventListener("input", e=>{
   const el = e.target;
+  if(el.id==="themeColor"){ set("theme.color", el.value); $("themeHex").textContent = el.value; $("themePrev").innerHTML = themePreview(el.value); return; }
   if(el.dataset && el.dataset.hide){ set(el.dataset.hide, !el.checked); render(); return; }
   const p = el.dataset && el.dataset.p; if(!p) return;
   let v = el.value;
@@ -281,6 +327,8 @@ document.addEventListener("click", e=>{
     const p=b.dataset.p; const arr=get(p); arr.push(NEW[p]()); markDirty(); render();
     setTimeout(()=>window.scrollTo(0,document.body.scrollHeight),0); return;
   }
+  if(b.dataset.act==="preset"){ set("theme.color", b.dataset.c); render(); return; }
+  if(b.dataset.act==="themeClear"){ set("theme.color",""); render(); return; }
   if(b.dataset.act==="up"||b.dataset.act==="down"){
     const arr=get(b.dataset.p), i=+b.dataset.i, j=b.dataset.act==="up"?i-1:i+1;
     if(j<0||j>=arr.length) return;
